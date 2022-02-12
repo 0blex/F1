@@ -50,3 +50,27 @@ plt.title('Races per Circuit')
 plt.show()
 
 
+# .reset_index()
+
+plt.figure(figsize=(20,10))
+plt.subplot(2,2,1)
+plt.plot(races_per_year.index,races_per_year['raceid'])
+plt.xlabel('Year')
+plt.ylabel('Number of Races')
+plt.title('Races per Year')
+
+plt.subplot(2,2,2)
+plt.bar(races_per_country.index,races_per_country['raceid'])
+plt.xlabel('Country')
+plt.xticks(rotation=90)
+plt.ylabel('Number of Races')
+plt.title('Races per Country')
+
+plt.subplot(2,1,2)
+plt.bar(races_per_circuit.index,races_per_circuit['raceid'])
+plt.xlabel('Circuit')
+plt.xticks(rotation=90)
+plt.ylabel('Number of Races')
+plt.title('Races per Circuit')
+plt.show()
+
