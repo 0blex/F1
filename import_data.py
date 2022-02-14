@@ -11,8 +11,9 @@ from config.connect_sql import conn
 from functions.functions import read
 
 query = read(r'queries\racescircuits.sql')
+races = pd.read_sql(query,conn)
 
-df = pd.read_sql(query,conn)
+query = read(r'queries\results_enriched.sql')
+results = pd.read_sql(query,conn)
+
 conn.close()
-
-races = df

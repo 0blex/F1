@@ -11,19 +11,20 @@ import pandas as pd
 
 from functions.functions import csv_upload
 
-circuits = csv_upload('input\circuits.csv')
-constructors = csv_upload('input\constructors.csv')
-constructor_results = csv_upload('input\constructor_results.csv')
-constructor_standings = csv_upload('input\constructor_standings.csv')
-drivers = csv_upload('input\drivers.csv')
-driver_standings = csv_upload('input\driver_standings.csv')
-lap_times = csv_upload('input\lap_times.csv')
-pit_stops = csv_upload('input\pit_stops.csv')
-qualifying = csv_upload('input\qualifying.csv')
-races = csv_upload(r'input\races.csv')
-results = csv_upload(r'input\results.csv',na=[r'\N','R','D'])
-seasons = csv_upload('input\seasons.csv')
-status = csv_upload('input\status.csv')
+
+circuits = csv_upload('input\\circuits.csv')
+constructors = csv_upload('input\\constructors.csv')
+constructor_results = csv_upload('input\\constructor_results.csv')
+constructor_standings = csv_upload('input\\constructor_standings.csv')
+drivers = csv_upload('input\\drivers.csv')
+driver_standings = csv_upload('input\\driver_standings.csv')
+lap_times = csv_upload('input\\lap_times.csv')
+pit_stops = csv_upload('input\\pit_stops.csv')
+qualifying = csv_upload('input\\qualifying.csv')
+races = csv_upload('input\\races.csv')
+results = csv_upload('input\\results.csv')
+seasons = csv_upload('input\\seasons.csv')
+status = csv_upload('input\\status.csv')
 
 
 # =============================================================================

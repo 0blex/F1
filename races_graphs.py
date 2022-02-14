@@ -12,7 +12,7 @@ from import_data import races
 
 df = races
 
-circuitnames = sorted(races['circuitname'].unique()) # list of circuits that have held a race
+circuitnames = sorted(races['circuitName'].unique()) # list of circuits that have held a race
 
 years = races['year'].unique().tolist() # years that held a GP
 
@@ -39,7 +39,7 @@ plt.title('Races per Country')
 plt.show()
 
 # plot the number of races at each circuit since first GP
-races_per_circuit = pd.DataFrame(df.groupby('circuitref')['raceid'].count())
+races_per_circuit = pd.DataFrame(df.groupby('circuitRef')['raceid'].count()) 
 
 plt.figure(figsize=(20,8))
 plt.bar(races_per_circuit.index,races_per_circuit['raceid'])
@@ -73,4 +73,15 @@ plt.xticks(rotation=90)
 plt.ylabel('Number of Races')
 plt.title('Races per Circuit')
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
 
