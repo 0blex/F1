@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from import_data import results
+from functions.functions import log
 
 # explore data
 df = results
@@ -26,3 +27,38 @@ losail = df[df['circuitRef']=='losail']
 df.loc[df['circuitID']==78,'altitude']='16'
 df['altitude'] = df['altitude'].astype(np.int64)
 
+
+# =============================================================================
+# cummulative results per driver plot
+# =============================================================================
+results2021 = df[df['year']==2021]
+drivers2021 = list(results2021['driverID'].unique())
+rounds2021 = list(range(1,23))
+
+
+results2021['cummPoints'] = 0
+cumm_driver = results2021[['resultID','raceID','driverID']]
+cumm_driver['cummPoints'] = 0
+
+# driver = 830
+# round = 2
+# resultID = 24986
+for driver in drivers2021:
+    df = results2021[results2021['driverID']==driver][['resultID','round','points']]
+    rounds = list(df['round'])
+    for round in rounds:
+        resultindex  = df[df['round']==round].index[0]
+        points = df[df['round']<=round]['points'].sum()
+        results2021.loc[resultindex,'cummPoints'] = points
+        cumm_driver.loc[resultindex,'cummPoints'] = points
+        log('{} - {} loaded'.format(driver,round))
+
+'''
+filter to each driver 
+sort rows by round number
+for round 1 cummPoints equals points
+then from round two sum points above
+
+
+
+'''

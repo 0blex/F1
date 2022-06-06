@@ -17,8 +17,8 @@ SELECT
 	CO.constructorRef,
 	CO.name AS constructorName,
 	RE.grid AS gridPosition,
-	RE.positionText,
 	RE.position AS racePosition,
+	RE.positionText AS RacePositionText,
 	CAST(RE.points AS DECIMAL(3,1)) AS points
 FROM results RE
 JOIN races RA ON RE.raceid = RA.raceID

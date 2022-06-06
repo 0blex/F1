@@ -16,4 +16,7 @@ races = pd.read_sql(query,conn)
 query = read(r'queries\results_enriched.sql')
 results = pd.read_sql(query,conn)
 
+results.to_csv('input\\cleaned\\results.csv',index=False)
+races.to_csv('input\\cleaned\\races.csv',index=False)
+
 conn.close()
