@@ -8,6 +8,8 @@ SELECT	r.raceid,
 		c.name AS circuitName,
 		c.location,
 		c.country,
+		c.lat AS latitude,
+		c.lng AS longitude,
 		c.alt AS altitude
 FROM races r 
 LEFT JOIN circuits c ON c.circuitid = r.circuitid

@@ -9,10 +9,11 @@ from config.directories import root
 from functions import functions as f
 
 
-import pandas as pd 
+import pandas as pd
 import numpy as np
-import plotly.express as px 
-import streamlit as st 
+import plotly.express as px
+import plotly.graph_objects as go
+import streamlit as st
 
 
 st.set_page_config(page_title='F1 Races',
@@ -45,11 +46,11 @@ left_column, middle_column, right_column = st.columns(3)
 with left_column:
     st.subheader('Total Races:')
     st.subheader(f':checkered_flag: {total_races:,}')
-    
+
 with middle_column:
     st.subheader('Total Countries:')
     st.subheader(f':earth_africa: {total_countries}')
-    
+
 with right_column:
     st.subheader('Total Tracks:')
     st.subheader(f':round_pushpin: {total_tracks}')
@@ -72,7 +73,7 @@ fig_races_year = px.line(
     )
 fig_races_year.update_layout(
     plot_bgcolor = 'rgba(0,0,0,0)',
-    xaxis = (dict(showgrid=False)) 
+    xaxis = (dict(showgrid=False))
 )
 
 
@@ -94,7 +95,7 @@ fig_races_country = px.bar(
     template='plotly_white',
     labels=dict(country='Country',raceid='Races')
 )
-fig_races_year.update_layout(
+fig_races_country.update_layout(
     plot_bgcolor = 'rgba(0,0,0,0)',
     xaxis = (dict(showgrid=False))
 )
@@ -117,7 +118,7 @@ fig_races_track = px.bar(
     template='plotly_white',
     labels=dict(circuitRef='Track',raceid='Races')
 )
-fig_races_year.update_layout(
+fig_races_track.update_layout(
     plot_bgcolor = 'rgba(0,0,0,0)',
     xaxis = (dict(showgrid=False))
 )
@@ -160,47 +161,49 @@ df_selection = results.query(
 
 
 
+
+
+
+
 # =============================================================================
-# LOWER PAGE 
+# CONSTRUCTOR BATTLE
 # =============================================================================
 st.header(f'{year} Constructor Battle')
 
 
 # CONSTRUCTOR WINNER KPIs
-constructor_season_winner = results[results['year']==year].groupby('constructorName').sum()['points'].sort_values(ascending=False).index[0]
-constructor_season_winner_points = results[results['year']==year].groupby('constructorName').sum()['points'].sort_values(ascending=False).iloc[0]
+constructor_season_winner = df_selection.groupby('constructorName').sum()['points'].sort_values(ascending=False).index[0]
+constructor_season_winner_points = df_selection.groupby('constructorName').sum()['points'].sort_values(ascending=False).iloc[0]
 constructor_season_winner_races_won = results[(results['year']==year) & (results['constructorName']==constructor_season_winner) & (results['racePosition']==1)]['raceID'].count()
 
 constructor_season_winner_podiums = results[(results['year']==year) & (results['constructorName']==constructor_season_winner) & (results['racePosition']<=3)]['raceID'].count()
 constructor_season_winner_dnfs = results[(results['year']==year) & (results['constructorName']==constructor_season_winner) & (results['racePosition'].isnull())]['raceID'].count()
 
-constructor_season_top_3 = results[results['year']==year].groupby('constructorName').sum()['points'].sort_values(ascending=False).index[0:3].to_list()
+constructor_season_top_3 = df_selection.groupby('constructorName').sum()['points'].sort_values(ascending=False).index[0:3].to_list()
 
 # TOP 3 CONSTRUCTORS LINE GRAPH DATA SET
 def get_cumm_constructor():
     '''calculate the cummulative points for each constructor'''
-    results = df_selection[df_selection['year']==year]
-    constructors = list(results['constructorName'].unique())
-    rounds = list(results['round'].unique())
-    
-    cumm_constructor = results.groupby(['round','constructorName']).sum()['points'].reset_index()
+    constructors = list(df_selection['constructorName'].unique())
+    rounds = list(df_selection['round'].unique())
+
+    cumm_constructor = df_selection.groupby(['round','constructorName']).sum()['points'].reset_index()
     cumm_constructor['cummPoints'] = 0
-    
+
     for constructor in constructors:
         df = cumm_constructor[cumm_constructor['constructorName']==constructor]
-        
+
         for round in rounds:
             resultindex  = df[df['round']==round].index[0]
             points = df[df['round']<=round]['points'].sum()
             cumm_constructor.loc[resultindex,'cummPoints'] = points
-    
+
     cumm_constructor = cumm_constructor.drop(columns=('points'))
-    
+
     return cumm_constructor
 
 
 cumm_constructor = get_cumm_constructor()
-
 Cumm_constructor_top_3 = cumm_constructor[cumm_constructor['constructorName'].isin(constructor_season_top_3)]
 
 
@@ -219,9 +222,36 @@ fig_top_3.update_layout(
     plot_bgcolor = 'rgba(0,0,0,0)',
     xaxis = (dict(showgrid=False)),
     legend=dict(
-        title=None, orientation="h", y=1, yanchor="bottom", x=0.5, xanchor="center"
+        title=None, 
+        orientation="h", 
+        y=1, 
+        yanchor="bottom", 
+        x=0.5, 
+        xanchor="center"
     )
 )
+
+
+# GET CONSTRUCTOR RACE STATISTICS
+def get_constructor_stats(constructor: str,stat=None):
+
+    wins = df_selection[(df_selection['constructorName']==constructor) & (df_selection['racePosition']==1)]['raceID'].count()
+    podiums = df_selection[(df_selection['constructorName']==constructor) & (df_selection['racePosition']<=3)]['raceID'].count()
+    dnfs = df_selection[(df_selection['constructorName']==constructor) & (df_selection['racePosition'].isnull())]['raceID'].count()
+
+    stats_dict = {
+        'wins':wins,
+        'podiums':podiums,
+        'DNFs':dnfs
+        }
+
+    valid = stats_dict.keys()
+
+    if stat in valid:
+        return stats_dict[stat]
+    else:
+        print(f'Specify desired statistic from the following: \n{valid}')
+        return 'error'
 
 
 
@@ -239,50 +269,53 @@ with middle_column:
 
 with right_column:
     st.subheader('##')
-    st.subheader(f'Races Won: {constructor_season_winner_races_won}') 
+    st.subheader(f'Races Won: {constructor_season_winner_races_won}')
 
 st.markdown('##')
 
 
 
 with st.container():
-    graph_column, stats_column = st.columns((2,1))
-    
+    graph_column, stats_column, team_1, team_2, team_3 = st.columns((6,1,1,1,1))
+
     with graph_column:
         st.plotly_chart(fig_top_3,use_container_width=True)
 
 
     with stats_column:
         ## insert season race stats
-        st.subheader(f'Races Won: {constructor_season_winner_races_won}') # insert horizontal bar chart alongside
-        
-        st.subheader(f'Podiums: {constructor_season_winner_podiums}')
-        
-        st.subheader(f'DNFs: {constructor_season_winner_dnfs}')
-        
+        st.markdown('##')
+        st.markdown('##')
+
+        st.subheader('Race Wins:')
+
+        st.subheader('Podiums:')
+
+        st.subheader('DNFs:')
+
+    with team_1:
+        team = constructor_season_top_3[0]
+        st.subheader(team)
+        st.subheader(get_constructor_stats(team,'wins'))
+        st.subheader(get_constructor_stats(team,'podiums'))
+        st.subheader(get_constructor_stats(team,'DNFs'))
+
+
+    with team_2:
+        team = constructor_season_top_3[1]
+        st.subheader(team)
+        st.subheader(get_constructor_stats(team,'wins'))
+        st.subheader(get_constructor_stats(team,'podiums'))
+        st.subheader(get_constructor_stats(team,'DNFs'))
+
+    with team_3:
+        team = constructor_season_top_3[2]
+        st.subheader(team)
+        st.subheader(get_constructor_stats(team,'wins'))
+        st.subheader(get_constructor_stats(team,'podiums'))
+        st.subheader(get_constructor_stats(team,'DNFs'))
+
 # CONSTRUCTOR SEASON POINTS GRAPH
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -290,17 +323,44 @@ driver_season_winner = results[results['year']==year].groupby('driverName').sum(
 
 
 
-
-
 #st.dataframe(df_selection)
 
 
 
+# =============================================================================
+# CIRCUIT MAP
+# =============================================================================
+
+# CONFIGURE DF SELECTION TO DROPDOWN
+races_selection = races.query(
+    'year == @year'
+)
 
 
+# ISOLATE CIRCUITS
+circuit_map = races_selection[['circuitRef','circuitName','latitude','longitude']].drop_duplicates()
 
 
+# GENERATE GRAPH OF MAP 
+fig_circuit_map = px.scatter_geo(
+    circuit_map, 
+    lat='latitude', lon='longitude',
+    width=1500, height=1000,
+    #projection="natural earth"
+) 
+fig_circuit_map.update_traces(hovertemplate = circuit_map['circuitName'])
+fig_circuit_map.update_geos(
+    #projection_type="orthographic",
+    # visible=False, 
+    #resolution=110, 
+    #scope="asia",
+    showcountries=True, countrycolor="Black",
+    showsubunits=True, subunitcolor="Blue"
+)
 
+
+with st.container():
+    st.plotly_chart(fig_circuit_map,use_container_width=True)
 
 
 
@@ -334,37 +394,3 @@ hide_st_style = """
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
